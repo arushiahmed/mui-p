@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import styles from './App.module.scss';
-import { makeStyles } from '@material-ui/core/styles';
+import './App.module.scss';
+import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import {
   Typography,
   Breadcrumbs,
@@ -19,9 +19,18 @@ import {
   CardMedia,
   CardHeader,
   Button,
+  TextField,
   Box,
+  createTheme,
 } from '@material-ui/core';
-import { Masonry } from '@mui/lab';
+import {
+  Masonry,
+  DatePicker,
+  LocalizationProvider,
+  StaticDatePicker,
+} from '@mui/lab';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import jaLocale from 'date-fns/locale/ja';
 import {
   PhotoCamera,
   PhotoCameraOutlined,
@@ -29,6 +38,7 @@ import {
   FavoriteBorderOutlined,
   ExpandMoreOutlined,
 } from '@material-ui/icons';
+import { green, purple } from '@mui/material/colors';
 
 const useStyles = makeStyles({
   cardBackground: {
@@ -37,11 +47,39 @@ const useStyles = makeStyles({
   fontBold: {
     fontWeight: 'bold',
   },
+  datepicker_panel: {
+    width: '90%',
+    margin: 'auto',
+  },
+});
+
+const materialTheme = createTheme({
+  palette: {
+    primary: {
+      main: green[500],
+    },
+  },
+  components: {
+    MuiStaticDatePicker: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'red',
+        },
+      },
+    },
+  },
 });
 
 function App() {
   const [checked, setChecked] = useState([false, false, false]);
   const classes = useStyles();
+  const [checkboxValue, setCheckboxValue] = useState('');
+  const [value, setValue] = useState(new Date());
+
+  const drinkCheckHandler = (e) => {
+    setCheckboxValue(e.target.value);
+    console.log(e.target);
+  };
 
   const checkedHandler = (event) => {
     setChecked([
@@ -99,6 +137,11 @@ function App() {
     },
   ];
 
+  const dateHandler = (params) => {
+    // setValue(params.inputProps.value);
+    console.log(params);
+  };
+
   return (
     <>
       <Breadcrumbs area-label="breadcrumb">
@@ -155,10 +198,23 @@ function App() {
       </Box>
 
       <FormGroup>
-        <FormControlLabel control={<Checkbox />} label="ビール" />
-        <FormControlLabel control={<Checkbox />} label="ワイン" />
-        <FormControlLabel control={<Checkbox />} label="日本酒" />
+        <FormControlLabel
+          control={<Checkbox onClick={drinkCheckHandler} />}
+          label="ビール"
+          value="ビール"
+        />
+        <FormControlLabel
+          control={<Checkbox onClick={drinkCheckHandler} />}
+          label="ワイン"
+          value="ワイン"
+        />
+        <FormControlLabel
+          control={<Checkbox onClick={drinkCheckHandler} />}
+          label="日本酒"
+          value="日本酒"
+        />
       </FormGroup>
+      <Typography>{checkboxValue}</Typography>
 
       <Box sx={{ mx: 2 }}>
         <Typography gutterBottom noWrap style={{ color: '#e4e4e4' }}>
@@ -215,6 +271,12 @@ function App() {
         </Box>
       </Box>
 
+      <Box sx={{ mx: 2 }}>
+        <Typography gutterBottom noWrap style={{ color: '#e4e4e4' }}>
+          ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        </Typography>
+      </Box>
+
       <Box
         sx={{
           display: 'flex',
@@ -248,18 +310,25 @@ function App() {
         </Accordion>
       </Box>
 
+      <Box sx={{ mx: 2 }}>
+        <Typography gutterBottom noWrap style={{ color: '#e4e4e4' }}>
+          ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        </Typography>
+      </Box>
+
       <Box
         sx={{
           background: 'linear-gradient(#e66465, #9198e5)',
           display: 'flex',
           justifyContent: 'space-around',
           flexWrap: 'wrap',
-          py: 2,
+          py: 4,
+          px: 2,
         }}
       >
         <Masonry columns={2} spacing={1}>
           {prefectureData.map(({ name, nameEn, description }) => (
-            <Box sx={{ my: 2, mx: 'auto', width: '45%' }}>
+            <Box key={name} sx={{ my: 2, mx: 'auto', width: '45%' }}>
               <Card className={classes.cardBackground}>
                 <CardContent>
                   <CardHeader title="Header"></CardHeader>
@@ -284,6 +353,48 @@ function App() {
           ))}
         </Masonry>
       </Box>
+
+      <Box sx={{ mx: 2 }}>
+        <Typography gutterBottom noWrap style={{ color: '#e4e4e4' }}>
+          ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        </Typography>
+      </Box>
+
+      <Box sx={{ width: '205px', my: 4, mx: 'auto' }}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} locale={jaLocale}>
+          <ThemeProvider theme={materialTheme}>
+            <DatePicker
+              label="Basic example"
+              value={value}
+              onChange={(newValue) => {
+                setValue(newValue);
+              }}
+              name="date"
+              minDate={new Date('1900-04-01')}
+              maxDate={new Date()}
+              renderInput={(params) => <TextField {...params} />}
+            />
+          </ThemeProvider>
+        </LocalizationProvider>
+      </Box>
+
+      {/* <Box sx={{ maxWidth: '500px', mx: 'auto' }}> */}
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <ThemeProvider theme={materialTheme}>
+          <StaticDatePicker
+            orientation="landscape"
+            openTo="day"
+            value={value}
+            onChange={(newValue) => {
+              setValue(newValue);
+            }}
+            minDate={new Date('1900-04-01')}
+            maxDate={new Date()}
+            renderInput={(params) => <TextField {...params} />}
+          />
+        </ThemeProvider>
+      </LocalizationProvider>
+      {/* </Box> */}
     </>
   );
 }
